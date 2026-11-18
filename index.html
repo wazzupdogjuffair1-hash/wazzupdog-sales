@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wazzup Dog</title>
-<meta name="theme-color" content="#1d1411">
+<meta name="theme-color" content="#1d1411"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Wazzup Dog">
 <style>
 :root{--ac:#e8590c;--bg:#f6f5f3;--cd:#fff;--tx:#1d1d1f;--mu:#6b6b70;--bd:#e4e2de;--ok:#2f9e44;--er:#e03131;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#141415;--cd:#1e1e20;--tx:#f2f2f3;--mu:#9a9aa0;--bd:#33333a}}
@@ -80,9 +80,9 @@ td:first-child,th:first-child{position:sticky;inset-inline-start:0;background:va
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script type="module">
 import {firebaseConfig,EMAIL_DOMAIN} from './firebase-config.js';
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {initializeApp,deleteApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,doc,setDoc,deleteDoc,getDocs,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,updatePassword} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 const fbApp=initializeApp(firebaseConfig),fs=initializeFirestore(fbApp,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})}),fbAuth=getAuth(fbApp);
 const wrap=q=>({docs:q.docs.map(d=>({id:d.id,data:()=>d.data()}))});
 const DB={collection:n=>({doc:id=>({set:d=>setDoc(doc(fs,n,id),d),delete:()=>deleteDoc(doc(fs,n,id)),onSnapshot:(cb,er)=>onSnapshot(doc(fs,n,id),s=>cb({exists:s.exists(),data:()=>s.data()}),er)}),get:async()=>wrap(await getDocs(collection(fs,n))),onSnapshot:(cb,er)=>onSnapshot(collection(fs,n),q=>cb(wrap(q)),er)})};
@@ -119,12 +119,17 @@ Object.assign(L,{tEntry:['تسجيل المبيعات','Record Sales'],tHome:['�
 Object.assign(L,{sPa:['المدفوعات تُدخل كما في التقرير (بعد الخصم وPayout). إيقافه = تُدخل المبلغ المستلم ويُخصم Payout من الكاش','Enter payments as in the report (after discount & payout). Off = enter received amounts, payout deducted from cash'],wSv:['⚠ الخدمات {a} لا تساوي الإجمالي بعد الخصم {b} – راجع الخانات أو عدّل Delivery','⚠ Services {a} ≠ gross after discount {b} – review or edit Delivery'],wPm:['⚠ المدفوعات {a} لا تساوي {b}','⚠ Payments {a} ≠ {b}']});
 Object.assign(L,{print:['طباعة','Print'],daily:['التفاصيل اليومية','Daily details']});
 Object.assign(L,{wait:['محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة','Too many attempts, wait a moment'],sPwF:['كلمات السر تُغيَّر من Firebase Console ← Authentication ← Users','Change passwords in Firebase Console → Authentication → Users']});
+Object.assign(L,{chPw:['تغيير كلمة السر','Change password'],acct:['الحساب','Account'],curPw:['كلمة السر الحالية','Current password'],newPw:['كلمة السر الجديدة','New password'],newPw2:['تأكيد كلمة السر الجديدة','Confirm new password'],pwOk:['✓ تم تغيير كلمة السر','✓ Password changed'],pwBad:['كلمة السر الحالية غير صحيحة','Current password is incorrect'],pwShort:['كلمة السر 6 أحرف على الأقل','At least 6 characters'],pwMis:['كلمتا السر غير متطابقتين','Passwords do not match'],pwDup:['كلمة السر مستخدمة في حساب آخر، اختر غيرها','Password is used by another account, choose another'],hist:['سجل التعديلات','Version history'],
+sLb:['أسماء العرض (اتركها فارغة للاسم الافتراضي) – عربي / English','Display names (blank = default) – Arabic / English'],sPwF:['تغيير كلمات السر للمدير فقط: أيقونة 🔑 أعلى الصفحة (تحتاج كلمة السر الحالية للحساب). عند النسيان: Firebase Console ← Authentication ← احذف الحساب وأنشئه من جديد.','Passwords can be changed by the manager only, with the 🔑 icon at the top (needs that account’s current password). If forgotten: Firebase Console → Authentication → delete and re-create the user.']});
 let lang='ar',dir='rtl',theme='';
 try{lang=localStorage.getItem('wd_l')||'ar';dir=localStorage.getItem('wd_d')||(lang==='ar'?'rtl':'ltr');theme=localStorage.getItem('wd_t')||''}catch(e){}
 const t=k=>(L[k]||[k,k])[lang==='ar'?0:1];
 const apply=()=>{R.lang=lang;R.dir=dir;if(theme)R.dataset.theme=theme;else delete R.dataset.theme;try{localStorage.setItem('wd_l',lang);localStorage.setItem('wd_d',dir);localStorage.setItem('wd_t',theme)}catch(e){}};apply();
-const BR=b=>t(b),BE={juffair:'Juffair',hamala:'Hamala'};
-const RN=r=>r==='juffair'?t('stJ'):r==='hamala'?t('stH'):t(r);
+const LB=k=>{const o=(cfg.lb||{})[k];return o&&o[lang]?o[lang]:null};
+const BR=b=>LB(b)||t(b),BE={get juffair(){return((cfg.lb||{}).juffair||{}).en||'Juffair'},get hamala(){return((cfg.lb||{}).hamala||{}).en||'Hamala'}};
+const RN=r=>LB('r_'+r)||(r==='juffair'?t('stJ'):r==='hamala'?t('stH'):t(r));
+const LBK=['juffair','hamala','r_admin','r_viewer','r_juffair','r_hamala'],LBD={juffair:'juffair',hamala:'hamala',r_admin:'admin',r_viewer:'viewer',r_juffair:'stJ',r_hamala:'stH'};
+const dfl=(k,l)=>L[LBD[k]][l==='ar'?0:1];
 const ROLES=['admin','viewer','juffair','hamala'];
 const DPW={admin:'admin123',viewer:'view123',juffair:'juf123',hamala:'ham123'};
 const DEF={name:'Wazzup Dog',color:'#e8590c',logo:'',h:{},vat:10,
@@ -144,7 +149,7 @@ const logoH=()=>cfg.logo?`<img src="${esc(cfg.logo)}" alt="">`:'<span class="log
 const tools=()=>`<button class="g ic" data-a="lang">🌐 ${lang==='ar'?'EN':'ع'}</button><button class="g ic" data-a="dir">⇄</button><button class="g ic" data-a="th">🌓</button>`;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
  if(a==='lang'){lang=lang==='ar'?'en':'ar';dir=lang==='ar'?'rtl':'ltr'}else if(a==='dir')dir=dir==='rtl'?'ltr':'rtl';else if(a==='th')theme=(theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))==='dark'?'light':'dark';
- else if(a==='out'){signOut(fbAuth);return}
+ else if(a==='pw'){pwDialog();return}else if(a==='out'){signOut(fbAuth);return}
  apply();route()});
 
 let unsubS=null,authReady=false;
@@ -175,7 +180,7 @@ function shell(){
  tabs.push(['records',t('tRec')],['report',t('tRep')]);
  if(r==='admin')tabs.push(['settings',t('tSet')]);
  if(!tabs.find(x=>x[0]===S.tab))S.tab=tabs[0][0];
- A.innerHTML=`<header><div class="hl">${logoH()}<div><h1>${esc(cfg.name)}</h1><small>${RN(r)}</small></div></div><div class="ht">${tools()}<button class="g ic" data-a="out">⎋ ${t('out')}</button></div></header>
+ A.innerHTML=`<header><div class="hl">${logoH()}<div><h1>${esc(cfg.name)}</h1><small>${RN(r)}</small></div></div><div class="ht">${tools()}${r==='admin'?`<button class="g ic" data-a="pw" title="${t('chPw')}">🔑</button>`:''}<button class="g ic" data-a="out">⎋ ${t('out')}</button></div></header>
  <div class="wrap"><nav>${tabs.map(x=>`<button class="${S.tab===x[0]?'':'g'}" data-t="${x[0]}">${x[1]}</button>`).join('')}</nav><div id="tab"></div></div>`;
  document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;S.pre=null;shell()});
  renderTab();
@@ -260,6 +265,34 @@ const getF=()=>{S.m=$('#fm').value||ym();S.b=$('#fb').value};
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function repText(y){const [Y,M,D]=y.date.split('-'),sm=cfg.svs.reduce((a,p)=>a+((y.sv||{})[p.id]||0),0),ad=S.role==='admin';
  return ['📄 Daily Sales Report – '+cfg.name+' ('+BE[y.branch]+')','🗓 Date: '+MN[M-1]+' '+(+D)+', '+Y,'👤 Cashier: '+(y.cashier||'-'),ad?'⏰ Registered: '+hm(y.ts):null,'━━━━━━━━━━━━━━━━━━━','','📊 Sales Summary','• Total Orders: '+y.orders,'• Avg Order: BD '+f3(y.orders?y.gross/y.orders:0),'• Gross Sales: BD '+f3(y.gross),'• Discounts: BD '+f3(y.disc),'• Payout: BD '+f3(y.payout),'• Net Sales: BD '+f3(y.net),'• VAT Included: BD '+f3(y.vat),'','💳 Payment Methods',...cfg.pms.map(p=>'• '+p.n+': BD '+f3((y.pn||y.pm||{})[p.id])),'','🛵 Service Breakdown',...cfg.svs.map(p=>'• '+p.n+': BD '+f3((y.sv||{})[p.id])),'• Total: BD '+f3(sm),'','━━━━━━━━━━━━━━━━━━━'].filter(x=>x!==null).join('\n')}
+async function showHist(key){
+ const q=await db.collection('history').get(),l=q.docs.map(d=>Object.assign({hid:d.id},d.data())).filter(y=>y.hid.startsWith(key+'_')).sort((a,b)=>(b.up||b.ts||0)-(a.up||a.ts||0));
+ const d=document.createElement('div');d.className='md';
+ d.innerHTML=`<div class="card" style="max-width:420px;width:100%"><h2>🕘 ${t('hist')}</h2>${l.length?l.map(y=>`<div class="row"><span>${y.up?new Date(y.up).toLocaleString():'–'} · ${t('net')} ${f3(y.net)} · ${y.orders}</span><button class="s g" data-hr="${y.hid}">${t('restore')}</button></div>`).join(''):`<p>${t('noRec')}</p>`}<div class="row"><button class="g" id="hc">${t('close')}</button></div></div>`;
+ document.body.appendChild(d);d.querySelector('#hc').onclick=()=>d.remove();
+ d.querySelectorAll('[data-hr]').forEach(b=>b.onclick=async()=>{const y=l.find(z=>z.hid===b.dataset.hr),rec=Object.assign({},y);delete rec.hid;const cur=sales[key];
+  try{if(cur)await db.collection('history').doc(key+'_'+(cur.up||cur.ts||0)).set(cur).catch(()=>{});rec.up=Date.now();await col.doc(key).set(rec);sales[key]=rec;toast(t('saved'));d.remove();renderTab()}catch(e){toast(t('fail'))}})}
+function pwDialog(){
+ if(S.role!=='admin')return;
+ const adm=true,d=document.createElement('div');d.className='md';
+ d.innerHTML=`<div class="card" style="max-width:360px;width:100%"><h2>🔑 ${t('chPw')}</h2><label>${t('acct')}<select id="pr">${(adm?ROLES:[S.role]).map(r=>`<option value="${r}" ${r===S.role?'selected':''}>${esc(RN(r))}</option>`).join('')}</select></label>
+ <label>${t('curPw')}<input type="password" id="p0" autocomplete="current-password"></label><label>${t('newPw')}<input type="password" id="p1" autocomplete="new-password"></label><label>${t('newPw2')}<input type="password" id="p2" autocomplete="new-password"></label>
+ <div class="msg" id="pm"></div><div class="row"><button id="po">${t('save')}</button><button class="g" id="pc">${t('close')}</button></div></div>`;
+ document.body.appendChild(d);
+ const q=x=>d.querySelector(x),msg=(x,c)=>{q('#pm').className='msg '+c;q('#pm').textContent=t(x)};
+ q('#pc').onclick=()=>d.remove();
+ q('#po').onclick=async()=>{
+  const r=q('#pr').value,p0=q('#p0').value,p1=q('#p1').value;
+  if(p1.length<6)return msg('pwShort','er');if(p1!==q('#p2').value)return msg('pwMis','er');
+  q('#po').disabled=true;const sec=initializeApp(firebaseConfig,'s'+Date.now()),sa=getAuth(sec);
+  try{
+   try{await signInWithEmailAndPassword(sa,r+'@'+EMAIL_DOMAIN,p0)}catch(e){msg('pwBad','er');return}
+   for(const o of ROLES)if(o!==r){let dup=false;try{await signInWithEmailAndPassword(sa,o+'@'+EMAIL_DOMAIN,p1);dup=true}catch(e){}if(dup){msg('pwDup','er');return}}
+   await updatePassword(sa.currentUser,p1);msg('pwOk','ok')
+  }catch(e){msg('fail','er')}
+  finally{try{await signOut(sa)}catch(e){}deleteApp(sec);q('#po').disabled=false}
+ };
+}
 function showRep(y){const tx=repText(y),d=document.createElement('div');d.className='md';
  d.innerHTML=`<div class="card" style="max-width:420px;width:100%"><pre class="rp">${esc(tx)}</pre><div class="row"><button id="cp">${t('copy')}</button><button class="g" id="cl">${t('close')}</button></div></div>`;document.body.appendChild(d);
  d.querySelector('#cl').onclick=()=>d.remove();
@@ -267,8 +300,9 @@ function showRep(y){const tx=repText(y),d=document.createElement('div');d.classN
 function recordsView(){
  $('#tab').innerHTML=`<div class="card"><h2>${t('tRec')}</h2>${filt()}<div class="tw" id="rt"></div></div>`;
  const draw=()=>{getF();const l=pick(S.m,S.b),x=agg(l),ad=S.role==='admin',pm=cfg.pms,sv=cfg.svs,c=n=>`<td>${f3(n)}</td>`;
-  $('#rt').innerHTML=l.length?`<table><thead><tr><th>${t('date')}</th><th>${t('branch')}</th>${ad?`<th>${t('time')}</th>`:''}<th>${t('cashier')}</th><th>${t('orders')}</th><th>${t('avgO')}</th><th>${t('gross')}</th><th>${t('disc')}</th><th>Payout</th><th>${t('net')}</th><th>VAT</th>${pm.map(p=>`<th>${esc(p.n)}</th>`).join('')}${sv.map(p=>`<th>${esc(p.n)}</th>`).join('')}<th></th></tr></thead><tbody>${l.map(y=>`<tr><td>${y.date}</td><td>${BR(y.branch)}</td>${ad?`<td>${y.ts?hm(y.ts):'–'}${y.up&&y.up-y.ts>6e4?` <small>✎${hm(y.up)}</small>`:''}</td>`:''}<td>${esc(y.cashier)}</td><td>${y.orders}</td>${c(y.orders?y.gross/y.orders:0)}${c(y.gross)}${c(y.disc)}${c(y.payout)}${c(y.net)}${c(y.vat)}${pm.map(p=>c((y.pn||y.pm||{})[p.id])).join('')}${sv.map(p=>c((y.sv||{})[p.id])).join('')}<td><button class="s g" data-v="${y.branch}_${y.date}">📄</button>${ad?` <button class="s g" data-e="${y.branch}_${y.date}">${t('edit')}</button> <button class="s d" data-x="${y.branch}_${y.date}">${t('del')}</button>`:''}</td></tr>`).join('')}</tbody><tfoot><tr><td>${t('total')}</td><td></td>${ad?'<td></td>':''}<td></td><td>${x.o}</td>${c(x.o?x.g/x.o:0)}${c(x.g)}${c(x.d)}${c(x.p)}${c(x.net)}${c(x.v)}${pm.map(p=>c(x.pm[p.id])).join('')}${sv.map(p=>c(x.sv[p.id])).join('')}<td></td></tr></tfoot></table>`:`<p>${t('noRec')}</p>`;
+  $('#rt').innerHTML=l.length?`<table><thead><tr><th>${t('date')}</th><th>${t('branch')}</th>${ad?`<th>${t('time')}</th>`:''}<th>${t('cashier')}</th><th>${t('orders')}</th><th>${t('avgO')}</th><th>${t('gross')}</th><th>${t('disc')}</th><th>Payout</th><th>${t('net')}</th><th>VAT</th>${pm.map(p=>`<th>${esc(p.n)}</th>`).join('')}${sv.map(p=>`<th>${esc(p.n)}</th>`).join('')}<th></th></tr></thead><tbody>${l.map(y=>`<tr><td>${y.date}</td><td>${BR(y.branch)}</td>${ad?`<td>${y.ts?hm(y.ts):'–'}${y.up&&y.up-y.ts>6e4?` <small>✎${hm(y.up)}</small>`:''}</td>`:''}<td>${esc(y.cashier)}</td><td>${y.orders}</td>${c(y.orders?y.gross/y.orders:0)}${c(y.gross)}${c(y.disc)}${c(y.payout)}${c(y.net)}${c(y.vat)}${pm.map(p=>c((y.pn||y.pm||{})[p.id])).join('')}${sv.map(p=>c((y.sv||{})[p.id])).join('')}<td><button class="s g" data-v="${y.branch}_${y.date}">📄</button>${ad?` <button class="s g" data-e="${y.branch}_${y.date}">${t('edit')}</button> <button class="s d" data-x="${y.branch}_${y.date}">${t('del')}</button> <button class="s g" data-h="${y.branch}_${y.date}">🕘</button>`:''}</td></tr>`).join('')}</tbody><tfoot><tr><td>${t('total')}</td><td></td>${ad?'<td></td>':''}<td></td><td>${x.o}</td>${c(x.o?x.g/x.o:0)}${c(x.g)}${c(x.d)}${c(x.p)}${c(x.net)}${c(x.v)}${pm.map(p=>c(x.pm[p.id])).join('')}${sv.map(p=>c(x.sv[p.id])).join('')}<td></td></tr></tfoot></table>`:`<p>${t('noRec')}</p>`;
   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>showRep(sales[b.dataset.v]));
+  document.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>showHist(b.dataset.h));
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const y=sales[b.dataset.e];S.pre={branch:y.branch,date:y.date};S.tab='entry';shell()});
   document.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!await ask(t('cDel')))return;try{const o=sales[b.dataset.x];await db.collection('trash').doc(b.dataset.x+'_'+Date.now()).set(Object.assign({},o,{delAt:Date.now(),key:b.dataset.x}));await col.doc(b.dataset.x).delete();delete sales[b.dataset.x];draw()}catch(e){toast(t('fail'))}});
  };
@@ -314,6 +348,7 @@ function settingsView(){
  $('#tab').innerHTML=`<div class="card"><h2>${t('tSet')}</h2>
  <div class="grid"><label>${t('sName')}<input id="sn" value="${esc(cfg.name)}"></label><label>${t('sCol')}<input type="color" id="sc" value="${esc(cfg.color)}"></label><label>${t('sLogo')}<input type="file" id="sl" accept="image/*"></label><label>${t('sVat')}<input type="number" id="sv" step="0.1" min="0" value="${cfg.vat}"></label><label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="sp" ${cfg.mr!==false?'checked':''}> ${t('sPa')}</label></div>
  <h3>🔐 ${t('sPwF')}</h3>
+ <h3>✏️ ${t('sLb')}</h3>${LBK.map(k=>`<div class="row"><b style="min-width:100px">${esc(dfl(k,lang))}</b><input data-lb="${k}" data-ln="ar" placeholder="${esc(dfl(k,'ar'))}" value="${esc(((cfg.lb||{})[k]||{}).ar||'')}"><input data-lb="${k}" data-ln="en" placeholder="${esc(dfl(k,'en'))}" value="${esc(((cfg.lb||{})[k]||{}).en||'')}"></div>`).join('')}
  ${lst('pms',t('sPm'))}${lst('svs',t('sSv'))}
  <div class="msg" id="sm"></div><div class="row"><button id="ss">${t('sSave')}</button></div></div><div class="card"><h2>${t('safe')}</h2><div class="row"><button class="g" id="bk">${t('bk')}</button><label class="btn g" style="flex-direction:row;cursor:pointer;color:var(--tx)">${t('rst')}<input type="file" id="rf" accept=".json" hidden></label><button class="g" id="tr">${t('trash')}</button></div><div id="tl"></div></div>`;
  const grab=()=>{document.querySelectorAll('[data-l]').forEach(i=>{const p=cfg[i.dataset.l][i.dataset.i];p.n=i.value.trim()||p.n});document.querySelectorAll('[data-dl]').forEach(i=>cfg.pms[i.dataset.dl].dl=i.checked);document.querySelectorAll('[data-dd]').forEach(i=>cfg.pms[i.dataset.dd].dd=i.checked)};
@@ -322,10 +357,11 @@ function settingsView(){
  $('#sl').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(1,160/Math.max(im.width,im.height));c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cfg.logo=c.toDataURL('image/png');toast('✓ '+t('sLogo'))};im.src=URL.createObjectURL(f)};
  $('#bk').onclick=async()=>{const c=Object.assign({},cfg);delete c.h;try{await dl({filename:'wazzup-backup-'+today()+'.json',data:JSON.stringify({config:c,sales},null,1)})}catch(e){}};
  $('#rf').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text()),k=Object.keys(j.sales||{});if(!k.length||!await ask(t('rstQ')+' '+k.length))return;for(const id of k)await col.doc(id).set(j.sales[id]);toast(t('saved'))}catch(x){toast(t('fail'))}};
- $('#tr').onclick=async()=>{const q=await db.collection('trash').get(),l=q.docs.map(d=>Object.assign({id:d.id},d.data()));$('#tl').innerHTML=l.length?l.map(y=>`<div class="row"><span>${y.date} · ${BR(y.branch)} · ${f3(y.net)}</span><button class="s g" data-rt="${y.id}">${t('restore')}</button></div>`).join(''):`<p>${t('noRec')}</p>`;
-  document.querySelectorAll('[data-rt]').forEach(b=>b.onclick=async()=>{const y=l.find(z=>z.id===b.dataset.rt),rec=Object.assign({},y);delete rec.id;delete rec.delAt;const key=rec.key;delete rec.key;await col.doc(key).set(rec);await db.collection('trash').doc(y.id).delete();sales[key]=rec;toast(t('saved'));$('#tr').click()})};
+ $('#tr').onclick=async()=>{const q=await db.collection('trash').get(),l=q.docs.map(d=>Object.assign({id:d.id},d.data()));$('#tl').innerHTML=l.length?l.map(y=>`<div class="row"><span>${y.date} · ${BR(y.branch)} · ${f3(y.net)}</span><button class="s g" data-rt="${y.id}">${t('restore')}</button> <button class="s d" data-rx="${y.id}">${t('del')}</button></div>`).join(''):`<p>${t('noRec')}</p>`;
+  document.querySelectorAll('[data-rt]').forEach(b=>b.onclick=async()=>{const y=l.find(z=>z.id===b.dataset.rt),rec=Object.assign({},y);delete rec.id;delete rec.delAt;const key=rec.key;delete rec.key;await col.doc(key).set(rec);await db.collection('trash').doc(y.id).delete();sales[key]=rec;toast(t('saved'));$('#tr').click()});
+  document.querySelectorAll('[data-rx]').forEach(b=>b.onclick=async()=>{if(!await ask(t('cDel')))return;try{await db.collection('trash').doc(b.dataset.rx).delete();$('#tr').click()}catch(e){toast(t('fail'))}})};
  $('#ss').onclick=async()=>{grab();const m=$('#sm'),er=x=>{m.className='msg er';m.textContent=x};
-  delete cfg.h;cfg.name=$('#sn').value.trim()||'Wazzup Dog';cfg.color=$('#sc').value;cfg.vat=N($('#sv').value);cfg.mr=$('#sp').checked;
+  cfg.lb={};document.querySelectorAll('[data-lb]').forEach(i=>{const v=i.value.trim();if(v)(cfg.lb[i.dataset.lb]=cfg.lb[i.dataset.lb]||{})[i.dataset.ln]=v});delete cfg.h;cfg.name=$('#sn').value.trim()||'Wazzup Dog';cfg.color=$('#sc').value;cfg.vat=N($('#sv').value);cfg.mr=$('#sp').checked;
   try{await cfgRef.set(cfg);theme$();toast(t('saved'));shell()}catch(e){er(t('fail'))}};
 }
 init();
